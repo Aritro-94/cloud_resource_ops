@@ -149,6 +149,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
     username   = local.admin_user
     public_key = var.ssh_public_key
   }
+  # admin_ssh_key { # You can add multiple SSH keys
+  #   username   = local.admin_user
+  #   public_key = var.ssh_public_key
+  # }
 
   os_disk {
     caching              = "ReadWrite"
