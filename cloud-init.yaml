@@ -1,0 +1,17 @@
+#cloud-config
+package_update: true
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+
+runcmd:
+  # Install Docker
+  - curl -fsSL https://get.docker.com | sh
+  - systemctl start docker
+  - systemctl enable docker
+
+  # Run httpbin container (maps VM:8000 → container:80)
+  - docker run -d --restart=always --name httpbin -p 8080:80 kennethreitz/httpbinterraform workspace show

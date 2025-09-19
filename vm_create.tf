@@ -74,6 +74,18 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "allow_8080"
+    priority                   = 1030
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8080"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_virtual_network" "vnet" {
@@ -153,6 +165,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   #   username   = local.admin_user
   #   public_key = var.ssh_public_key
   # }
+  custom_data = filebase64("${path.module}/cloud-init.yaml")
 
   os_disk {
     caching              = "ReadWrite"
@@ -168,6 +181,14 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
+    # Marketplace image (requires plan + terms accept)
+  # source_image_reference {
+  #   publisher = "nvidia"
+  #   offer     = "ngc_azure_17_11"
+  #   sku       = "gpu_optimized_24_10_1_gen2"
+  #   version   = "24.10.1"
+  # }
+  
   disable_password_authentication = true
 
   boot_diagnostics {
@@ -215,3 +236,6 @@ resource "azurerm_virtual_machine_extension" "health" {
 output "public_ip" {
   value = azurerm_public_ip.pip.ip_address
 }
+
+# dotenv terraform apply -auto-approve
+# dotenv terraform destroy -auto-approve
