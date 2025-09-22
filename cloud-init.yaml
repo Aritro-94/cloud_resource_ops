@@ -14,4 +14,4 @@ runcmd:
   - systemctl enable docker
 
   # Run httpbin container (maps VM:8000 → container:80)
-  - docker run -d --restart=always --name httpbin -p 8080:80 kennethreitz/httpbinterraform workspace show
+  - docker run -d --restart=always --name httpbin -p 8080:80 kennethreitz/httpbin

@@ -148,12 +148,15 @@ data "azurerm_platform_image" "ubuntu2404" {
   # sku = "server"
   # version = "latest"
 }
+# Standard_NC24ads_A100_v4 - 80GB vRAM
+# Standard_NC4as_T4_v3 - 16GB vRAM
+# Standard_D2s_v3 - Non GPU VM
 
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = local.vm_name
   location            = local.location
   resource_group_name = local.rg_name
-  size                = "Standard_D2s_v3"
+  size                = "Standard_NC4as_T4_v3" # Add GPU enabled VM
   admin_username      = local.admin_user
   network_interface_ids = [azurerm_network_interface.nic.id]
 
@@ -174,20 +177,26 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
 
+  # source_image_reference {
+  #   publisher = data.azurerm_platform_image.ubuntu2404.publisher
+  #   offer     = data.azurerm_platform_image.ubuntu2404.offer
+  #   sku       = data.azurerm_platform_image.ubuntu2404.sku
+  #   version   = "latest"
+  # }
+
+  # Marketplace image (requires plan + terms accept)
   source_image_reference {
-    publisher = data.azurerm_platform_image.ubuntu2404.publisher
-    offer     = data.azurerm_platform_image.ubuntu2404.offer
-    sku       = data.azurerm_platform_image.ubuntu2404.sku
-    version   = "latest"
+    publisher = "nvidia"
+    offer     = "ngc_azure_17_11"
+    sku       = "gpu_optimized_24_10_1_gen2"
+    version   = "24.10.1"
   }
 
-    # Marketplace image (requires plan + terms accept)
-  # source_image_reference {
-  #   publisher = "nvidia"
-  #   offer     = "ngc_azure_17_11"
-  #   sku       = "gpu_optimized_24_10_1_gen2"
-  #   version   = "24.10.1"
-  # }
+  plan {
+    name      = "gpu_optimized_24_10_1_gen2"
+    product   = "ngc_azure_17_11"
+    publisher = "nvidia"
+  }
   
   disable_password_authentication = true
 
@@ -239,3 +248,9 @@ output "public_ip" {
 
 # dotenv terraform apply -auto-approve
 # dotenv terraform destroy -auto-approve
+
+## Accept thrid party image Marketplace terms
+# az vm image terms accept \
+#   --publisher nvidia \
+#   --offer ngc_azure_17_11 \
+#   --plan gpu_optimized_24_10_1_gen2

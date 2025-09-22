@@ -5,3 +5,5 @@ crash.log
 override.tf
 override.tf.json
 .terraform/
+node_modules/
+package*.json
